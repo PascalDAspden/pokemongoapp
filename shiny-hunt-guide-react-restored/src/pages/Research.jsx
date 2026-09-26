@@ -23,7 +23,7 @@ function Section({ title, children, count }) {
   );
 }
 
-export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, appearance, shinyFormArt, query, activeHunt, isActive, setActiveHunt, isChecked, toggleChecked }) {
+export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, appearance, shinyFormArt, query, activeHunt, isActive, setActiveHunt, isChecked, toggleChecked, sectionFilter = 'all' }) {
   const [eggDistance, setEggDistance] = useState('all');
   const [openDetail, setOpenDetail] = useState(null);
 
@@ -74,7 +74,7 @@ export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, 
 
   return (
     <section className="page">
-      <Section title="Featured event Pokémon" count={eventTargets.length}>
+      {(sectionFilter === 'all' || sectionFilter === 'events') && <Section title="Featured event Pokémon" count={eventTargets.length}>
         {eventTargets.map((p) => (
           <PokemonCard
             key={`${p.name}:${p.event.eventID}`}
@@ -89,9 +89,9 @@ export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, 
             onOpen={openItem}
           />
         ))}
-      </Section>
+      </Section>}
 
-      <Section title="Max Battle Pokémon" count={maxTargets.length}>
+      {(sectionFilter === 'all' || sectionFilter === 'max') && <Section title="Max Battle Pokémon" count={maxTargets.length}>
         {maxTargets.map((p) => (
           <PokemonCard
             key={`${p.name}:${p.event.eventID}`}
@@ -106,9 +106,9 @@ export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, 
             onOpen={openItem}
           />
         ))}
-      </Section>
+      </Section>}
 
-      <section className="card-section">
+      {(sectionFilter === 'all' || sectionFilter === 'eggs') && <section className="card-section">
         <div className="section-head">
           <h3>Egg hatches</h3>
           <span>{eggs.length} targets</span>
@@ -140,9 +140,9 @@ export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, 
         ) : (
           <div className="empty">No eggs match this filter right now.</div>
         )}
-      </section>
+      </section>}
 
-      <Section title="Field research" count={research.length}>
+      {sectionFilter === 'all' && <Section title="Field research" count={research.length}>
         {research.map((r) => (
           <PokemonCard
             key={r.name + r.task}
@@ -157,9 +157,9 @@ export default function Research({ researchFeed, eggsFeed, events, pokemonInfo, 
             onOpen={openItem}
           />
         ))}
-      </Section>
+      </Section>}
 
-      {nothing && <div className="empty">No matching shiny targets in the current feed.</div>}
+      {sectionFilter === 'all' && nothing && <div className="empty">No matching shiny targets in the current feed.</div>}
 
       {openDetail && (
         <PokemonDetail

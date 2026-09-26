@@ -64,7 +64,7 @@ function buildTrackableHunts({ raidsFeed, events, eggsFeed, researchFeed, pokemo
   return [...raids, ...eventTargets, ...maxTargets, ...eggs, ...research];
 }
 
-export default function Checklist({ raidsFeed, eggsFeed, researchFeed, events, pokemonInfo, appearance, shinyFormArt, query, activeHunt, isActive, setActiveHunt, isChecked, toggleChecked, checked }) {
+export default function Checklist({ raidsFeed, eggsFeed, researchFeed, events, pokemonInfo, appearance, shinyFormArt, query, activeHunt, isActive, setActiveHunt, isChecked, toggleChecked, checked, compact = false }) {
   const [hideChecked, setHideChecked] = useState(false);
   const clock = useLocalClock();
 
@@ -103,7 +103,7 @@ export default function Checklist({ raidsFeed, eggsFeed, researchFeed, events, p
       <div className="dashboard-title">
         <div>
           <span className="eyebrow">TODAY'S OPPORTUNITIES</span>
-          <h2>Your hunt checklist</h2>
+          <h2>Your hunt dashboard</h2>
         </div>
         <span className="local-clock">{clock}</span>
       </div>
@@ -118,6 +118,8 @@ export default function Checklist({ raidsFeed, eggsFeed, researchFeed, events, p
       )}
 
       <p className="dashboard-note">Countdowns use this device's local time. A remote raid cutoff is a 24-hour time-zone estimate, not guaranteed lobby availability.</p>
+
+      {compact ? null : <>
 
       <div className="section-head">
         <h3>All trackable targets</h3>
@@ -145,6 +147,7 @@ export default function Checklist({ raidsFeed, eggsFeed, researchFeed, events, p
         ))}
         {!filtered.length && <div className="empty">Nothing matches this filter right now.</div>}
       </div>
+      </>}
     </section>
   );
 }

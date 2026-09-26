@@ -12,7 +12,7 @@ export function safeUrl(url) {
   }
 }
 
-/** Leek Duck serves a smaller, cropped icon at a sibling path. Prefer it. */
+/** Use the same Leek Duck card artwork path as the working guide. */
 export function normalizedSpriteUrl(src) {
   const source = String(src || '');
   return /cdn\.leekduck\.com\/assets\/img\/pokemon_icons\//i.test(source)

@@ -1,9 +1,13 @@
-# Shiny Hunt Guide — React rebuild
+# Shiny Hunt Guide — React source with restored field-guide design
 
-This is a full React rewrite of the original single-file `dist/app.js` Shiny
-Hunt Guide, reorganized into the component/page/data/hooks/utils structure
-you asked for. It's a Vite + React app — no other framework opinions bolted
-on top.
+This project keeps the editable Vite + React component/page/data/hooks/utils
+folder structure, while restoring the field-guide frontend: the blue Mew icon,
+Hunt and Calendar bottom navigation, featured event cards, calendar export,
+local-time countdowns, and the original dark/lime visual design.
+
+Card sprites now use the same Leek Duck icon path and 66px/75px card sizing
+as the working static guide. The artwork switch remains the Normal/Shiny
+control at the top of the Hunt page.
 
 ## Run it
 
@@ -50,8 +54,8 @@ still shows something if a feed request fails.
 | Normal/Shiny artwork switch | `components/ShinyToggle.jsx` |
 | Raid scope/type/sort/shiny-only controls | `components/RaidFilters.jsx` |
 | Sprite rendering + shiny fallback (new shared helper, not in your list) | `components/Sprite.jsx` |
-| "Hunt" tab (raids + eggs + research + Max in one feed) | Split into `pages/Raids.jsx` and `pages/Research.jsx` |
-| "Calendar" tab | `pages/Events.jsx` |
+| "Hunt" view (raids + eggs + events + Max filters) | `App.jsx`, `pages/Raids.jsx`, and `pages/Research.jsx` |
+| Bottom Calendar view | `pages/Events.jsx` |
 | Dashboard / active hunt / trackable list | `pages/Checklist.jsx` (now also lets you check off multiple targets, not just pin one) |
 
 ## Notes on the rebuild

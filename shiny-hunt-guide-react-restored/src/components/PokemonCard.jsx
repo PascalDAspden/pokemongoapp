@@ -1,6 +1,7 @@
 import Sprite from './Sprite.jsx';
 import { useCountdown } from '../hooks/useCountdown.js';
 import { shortDate, timeOfDay, parseDate } from '../utils/dates.js';
+import { addToCalendar } from '../data/events.js';
 
 /** The little "✦ 1/64  ·  estimated" shiny-rate block shown on every card and detail view. */
 export function RateNote({ odds }) {
@@ -74,6 +75,11 @@ export default function PokemonCard({ kind, item, appearance, shinyFormArt, trac
           {!locked && (
             <button type="button" className={`track-button${tracked ? ' active' : ''}`} onClick={() => onTrack?.(kind, item, eventId)}>
               {tracked ? 'Tracking ✓' : 'Track hunt'}
+            </button>
+          )}
+          {event && (
+            <button type="button" className="calendar-button" onClick={() => addToCalendar(event)}>
+              Add event to Calendar
             </button>
           )}
           {onToggleChecked && (

@@ -10,13 +10,6 @@ import { fetchSpeciesInfo, fetchGmaxArt, fetchShinyFormArtBatch } from './data/p
 import { collectFormSlugs } from './utils/pokemonForms.js';
 import { useActiveHunt, useChecklist } from './hooks/useChecklist.js';
 
-const TABS = [
-  { id: 'raids', label: 'Raids' },
-  { id: 'research', label: 'Research' },
-  { id: 'events', label: 'Events' },
-  { id: 'checklist', label: 'Checklist' }
-];
-
 const EMPTY_FEEDS = { raids: [], eggs: [], research: [], events: [] };
 
 export default function App() {
@@ -24,7 +17,8 @@ export default function App() {
   const [status, setStatus] = useState({ loading: true, cached: false, failed: false, updatedAt: null });
   const [appearance, setAppearance] = useState('normal');
   const [query, setQuery] = useState('');
-  const [tab, setTab] = useState('raids');
+  const [view, setView] = useState('hunt');
+  const [huntFilter, setHuntFilter] = useState('all');
   const [pokemonInfo, setPokemonInfo] = useState({});
   const [shinyFormArt, setShinyFormArt] = useState({});
 
@@ -148,13 +142,21 @@ export default function App() {
     [feeds, pokemonInfo, appearance, shinyFormArt, query, status.failed, activeHuntApi, checklistApi]
   );
 
+  const filters = [
+    { id: 'all', label: 'All' },
+    { id: 'raids', label: `Raids ${feeds.raids.length}` },
+    { id: 'eggs', label: `Eggs ${feeds.eggs.length}` },
+    { id: 'max', label: `Max ${maxEncounters(feeds.events, pokemonInfo, feeds.eggs).length}` },
+    { id: 'events', label: `Events ${feeds.events.length}` }
+  ];
+
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand-mark">✦</div>
+        <div className="brand-mark"><img src="/icon-192.png" alt="Mew" /></div>
         <div className="brand-copy">
-          <span className="eyebrow">POKÉMON GO</span>
-          <h1>Shiny Hunt Guide</h1>
+          <span className="eyebrow">POKÉMON GO FIELD GUIDE</span>
+          <h1>Shiny Hunt</h1>
         </div>
         <button type="button" className="icon-button" onClick={refresh} disabled={status.loading} aria-label="Refresh live data">
           ⟳
@@ -169,31 +171,49 @@ export default function App() {
         )}
       </div>
 
-      <div className="controls-row">
-        <input
-          type="search"
-          className="search-input"
-          placeholder="Search Pokémon, raids, events…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search"
-        />
-        <ShinyToggle value={appearance} onChange={setAppearance} />
-      </div>
-
-      <nav className="tab-row" aria-label="Sections">
-        {TABS.map((t) => (
-          <button key={t.id} type="button" className={`tab${tab === t.id ? ' active' : ''}`} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </nav>
-
       <main>
-        {tab === 'raids' && <Raids {...pageProps} />}
-        {tab === 'research' && <Research {...pageProps} />}
-        {tab === 'events' && <Events {...pageProps} />}
-        {tab === 'checklist' && <Checklist {...pageProps} />}
+        {view === 'hunt' ? (
+          <>
+            <div className="intro">
+              <h2>Shiny targets <span className="spark">✦</span></h2>
+              <p>Current encounters and upcoming hunts.</p>
+            </div>
+
+            <Checklist {...pageProps} compact />
+
+            <label className="search-wrap">
+              <span aria-hidden="true">⌕</span>
+              <input type="search" placeholder="Search Pokémon or events" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search Pokémon or events" />
+            </label>
+
+            <nav className="filter-row" aria-label="Encounter type">
+              {filters.map((filter) => (
+                <button key={filter.id} type="button" className={`filter${huntFilter === filter.id ? ' active' : ''}`} aria-pressed={huntFilter === filter.id} onClick={() => setHuntFilter(filter.id)}>
+                  {filter.label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="appearance-controls">
+              <span>Pokémon artwork</span>
+              <ShinyToggle value={appearance} onChange={setAppearance} />
+            </div>
+
+            {(huntFilter === 'all' || huntFilter === 'events') && <Research {...pageProps} sectionFilter="events" />}
+            {(huntFilter === 'all' || huntFilter === 'raids') && <Raids {...pageProps} />}
+            {huntFilter === 'eggs' && <Research {...pageProps} sectionFilter="eggs" />}
+            {huntFilter === 'max' && <Research {...pageProps} sectionFilter="max" />}
+          </>
+        ) : (
+          <section className="calendar-view">
+            <div className="intro">
+              <h2>Event calendar</h2>
+              <p>Upcoming Pokémon GO events in your device’s local time.</p>
+            </div>
+            <div className="calendar-note">Tap <strong>Add to Calendar</strong> to save an event with a 30-minute alert.</div>
+            <Events {...pageProps} />
+          </section>
+        )}
       </main>
 
       <footer className="app-footer">
@@ -202,6 +222,15 @@ export default function App() {
           official rates.
         </p>
       </footer>
+
+      <nav className="bottom-nav" aria-label="Main navigation">
+        <button type="button" className={`nav-item${view === 'hunt' ? ' active' : ''}`} aria-current={view === 'hunt' ? 'page' : undefined} onClick={() => setView('hunt')}>
+          <span className="nav-icon" aria-hidden="true">✦</span><span>Hunt</span>
+        </button>
+        <button type="button" className={`nav-item${view === 'calendar' ? ' active' : ''}`} aria-current={view === 'calendar' ? 'page' : undefined} onClick={() => setView('calendar')}>
+          <span className="calendar-glyph" aria-hidden="true" /><span>Calendar</span>
+        </button>
+      </nav>
     </div>
   );
 }
