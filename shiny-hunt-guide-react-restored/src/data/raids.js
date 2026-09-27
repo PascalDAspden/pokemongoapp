@@ -38,6 +38,26 @@ export const fetchEggsFeed = () => loadFeed('eggs');
 export const fetchResearchFeed = () => loadFeed('research');
 export const fetchEventsFeed = () => loadFeed('events');
 
+/** Leek Duck's Rocket encounter slots and per-Pokémon shiny flags, via Leak Duck. */
+export async function fetchRocketFeed() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 14000);
+  try {
+    const response = await fetch('https://raw.githubusercontent.com/zhenga8533/leak-duck/data/rocket_lineups.json', { cache: 'no-cache', signal: controller.signal });
+    if (!response.ok) throw new Error('Rocket feed unavailable');
+    const data = await response.json();
+    if (!data || Array.isArray(data) || typeof data !== 'object') throw new Error('Unexpected Rocket feed');
+    try { localStorage.setItem('feed-rocket', JSON.stringify({ saved: Date.now(), data })); } catch { /* storage unavailable */ }
+    return { data, cached: false, failed: false };
+  } catch {
+    try {
+      const saved = JSON.parse(localStorage.getItem('feed-rocket'));
+      if (saved?.data && !Array.isArray(saved.data) && typeof saved.data === 'object') return { data: saved.data, cached: true, failed: false };
+    } catch { /* no saved copy */ }
+    return { data: {}, cached: false, failed: true };
+  } finally { clearTimeout(timeout); }
+}
+
 export function rate(value, confidence, reason, note = '') {
   return { value, confidence, reason, note };
 }
@@ -112,11 +132,11 @@ export function scheduledRaids(events, raidsFeed, pokemonInfo = {}) {
     );
 }
 
-/** Flattens field-research tasks down to just the shiny-capable rewards. */
+/** Keep every Pokémon reward. The source currently marks even known shiny species false. */
 export function researchRewards(researchFeed) {
   return researchFeed.flatMap((task) =>
     (task.rewards || [])
-      .filter((reward) => reward.canBeShiny)
-      .map((reward) => ({ task: String(task.text || '').replace(/<[^>]*>/g, ''), ...reward }))
+      .filter((reward) => reward.name && reward.image)
+      .map((reward) => ({ ...reward, feedCanBeShiny: reward.canBeShiny, canBeShiny: undefined, task: String(task.text || '').replace(/<[^>]*>/g, '') }))
   );
 }

@@ -19,7 +19,7 @@ export function RateNote({ odds }) {
   );
 }
 
-const KIND_LABEL = { egg: 'EGG', research: 'RESEARCH', event: 'EVENT', max: 'MAX' };
+const KIND_LABEL = { egg: 'EGG', research: 'RESEARCH', breakthrough: 'BREAKTHROUGH', rocket: 'SHADOW', event: 'EVENT', max: 'MAX' };
 
 /**
  * `kind` is one of 'egg' | 'research' | 'event' | 'max'.
@@ -30,7 +30,7 @@ export default function PokemonCard({ kind, item, appearance, shinyFormArt, trac
   const locked = item.canBeShiny === false;
   const event = item.event;
   const countdown = useCountdown(event?.start, event?.end);
-  const eventId = event?.eventID || '';
+  const eventId = event?.eventID || item.huntId || '';
 
   const badge = locked
     ? 'LOCKED'
@@ -47,6 +47,10 @@ export default function PokemonCard({ kind, item, appearance, shinyFormArt, trac
       ? `${item.eggType || 'Egg'}${item.isAdventureSync ? ' · Adventure Sync' : ''}${item.isGiftExchange ? ' · Route Gift' : ''}`
       : kind === 'research'
         ? `${item.task}${item.combatPower?.min ? ` · CP ${item.combatPower.min}–${item.combatPower.max}` : ''}`
+        : kind === 'rocket'
+          ? `${item.trainer} · catchable Shadow reward`
+          : kind === 'breakthrough'
+            ? '7 Field Research stamps · seasonal reward pool'
         : event
           ? `${event.name} · ${shortDate(parseDate(event.start))}, ${timeOfDay(parseDate(event.start))}`
           : '';

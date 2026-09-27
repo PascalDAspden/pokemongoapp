@@ -20,7 +20,7 @@ const REMOTE_RAID_APPS = [
  *   raidRaw   // only for kind === 'raid': the original raid object (for CP + type matchup)
  * }
  */
-export default function PokemonDetail({ detail, onClose, tracked, onTrack, shinyFormArt }) {
+export default function PokemonDetail({ detail, onClose, tracked, onTrack, shinyFormArt, battleForms }) {
   const [matchup, setMatchup] = useState(null);
   const [matchupLoading, setMatchupLoading] = useState(detail.kind === 'raid');
   const countdown = useCountdown(detail.event?.start, detail.event?.end);
@@ -155,7 +155,7 @@ export default function PokemonDetail({ detail, onClose, tracked, onTrack, shiny
             </div>
           )}
 
-          <EvolutionLine item={detail.raidRaw || detail} shinyFormArt={shinyFormArt} />
+          <EvolutionLine item={detail.raidRaw || detail} shinyFormArt={shinyFormArt} battleForms={battleForms} />
         </div>
       </div>
     </div>

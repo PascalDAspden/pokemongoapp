@@ -2,7 +2,7 @@
 // live Pokémon GO feeds in data/raids.js and data/events.js with species
 // metadata the feeds don't carry: legendary status, shiny form artwork,
 // evolution trees and type match-ups.
-import { pokemonForm, pokemonSlug, pokemonIdFromImage, preferredForm, baseSpeciesName, normalizedSpriteUrl } from '../utils/pokemonForms.js';
+import { pokemonForm, pokemonSlug, pokemonIdFromImage, preferredForm, baseSpeciesName, normalizedSpriteUrl, shinySource } from '../utils/pokemonForms.js';
 
 const EVOLUTIONS_URL = 'https://pogoapi.net/api/v1/pokemon_evolutions.json';
 const ATTACK_TYPES = [
@@ -53,6 +53,18 @@ export async function fetchGmaxArt(name) {
 
 // ---- Shiny artwork for named forms (mega/regional/gmax slugs), cached per slug ----
 const shinyFormCache = new Map();
+const normalFormCache = new Map();
+
+/** Load actual form artwork where available; the family icon remains the fallback. */
+export async function fetchNormalFormArtBatch(formSlugs) {
+  await Promise.all(formSlugs.map(async (slug) => {
+    if (normalFormCache.has(slug)) return;
+    const data = await pokeJson(`https://pokeapi.co/api/v2/pokemon/${slug}`, 8500);
+    const sprites = data?.sprites;
+    normalFormCache.set(slug, sprites?.other?.['official-artwork']?.front_default || sprites?.other?.home?.front_default || sprites?.front_default || null);
+  }));
+  return Object.fromEntries(formSlugs.map((slug) => [slug, normalFormCache.get(slug)]));
+}
 
 export async function fetchShinyFormArt(formSlug) {
   if (shinyFormCache.has(formSlug)) return shinyFormCache.get(formSlug);
@@ -198,12 +210,11 @@ export function evolutionRequirementText(detail) {
 export function familyMemberSprite(node, item, shiny, shinyFormArt) {
   const clickedId = pokemonIdFromImage(item.image);
   const battleForm = /^(mega|gigantamax|dynamax|shadow)\s/i.test(item.name);
-  const same = !battleForm && node.name.toLowerCase() === baseSpeciesName(item.species || item.name).toLowerCase() && (clickedId === node.id || !clickedId);
-  const normal = normalizedSpriteUrl(same ? item.image : `https://cdn.leekduck.com/assets/img/pokemon_icons_crop/pm${node.id}.icon.png`);
-  if (!shiny) return normal;
-  const form = pokemonForm(node.name);
-  if (form) return shinyFormArt?.[form] || normal;
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${node.id}.png`;
+  const same = !battleForm && node.name.toLowerCase() === baseSpeciesName(item.species || item.name).toLowerCase() && (clickedId === node.id || !clickedId) && preferredForm(item.name) === node.form;
+  const region = { Alola: 'ALOLA', Galarian: 'GALARIAN', Hisuian: 'HISUIAN', Paldea: 'PALDEAN' }[node.form];
+  const icon = `https://cdn.leekduck.com/assets/img/pokemon_icons_crop/pm${node.id}${region ? `.f${region}` : ''}.icon.png`;
+  const normal = normalizedSpriteUrl(same ? item.image : icon);
+  return shiny ? shinySource(node.name, normal, shinyFormArt) || normal : normal;
 }
 
 export { ATTACK_TYPES };

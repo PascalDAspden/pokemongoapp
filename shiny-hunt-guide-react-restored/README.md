@@ -11,10 +11,36 @@ control at the top of the Hunt page.
 
 ## Run it
 
+Extract the new ZIP into a separate folder so you do not accidentally run an
+older `shiny-hunt-guide-react-restored` copy. In Terminal on your Mac:
+
 ```bash
+npm --version
+cd ~/Downloads/shiny-hunt-guide-react-research-rocket-v4
 npm install
-npm run dev      # http://localhost:5173
+npm run dev
 ```
+
+Open the **Local** URL that Terminal prints (usually `http://localhost:5173`;
+it may use a different port if an older development server is still running).
+Stop any older `npm run dev` terminal with Control-C and refresh the browser.
+The Eggs filter should show **1 km** between All eggs and 2 km.
+
+The Hunt filters now also include **Research**, **Breakthrough**, and **Rocket**.
+Field Research and Rocket rewards load live. Rocket cards only show catchable
+rewards that the lineup feed explicitly marks as shiny-capable. Field Research
+shows every Pokémon reward because the current feed marks even shiny species
+as unavailable; check each encounter's shiny status before hunting. Research
+Breakthrough has its own published Twilight Trails list (Sep 8–Dec 1, 2026),
+separate from individual Field Research tasks. Because the seasonal pool source
+does not supply a per-Pokémon shiny flag in a feed, the app asks you to check
+each species before treating it as a shiny target. The list stops displaying
+after the season ends.
+
+Max Mondays have their own weekly-rotation section. The family comparison shows
+Mega and Gigantamax forms even outside the current raid rotation, plus known
+Dynamax family members and currently featured Max forms. A form in the family
+comparison does not imply that its battle is currently available.
 
 ```bash
 npm run build     # production build to dist/
@@ -25,6 +51,8 @@ Requires Node 18+ and an internet connection — like the original, this app
 has no bundled Pokémon data. Everything loads live from:
 
 - **ScrapedDuck** (`raw.githubusercontent.com/bigfoott/ScrapedDuck`) — raids, eggs, field research, events
+- **Leak Duck** (`raw.githubusercontent.com/zhenga8533/leak-duck`) — Team GO Rocket encounter slots and shiny availability
+- **Leek Duck** (`leekduck.com/research/`) — dated Research Breakthrough pool snapshot
 - **PogoAPI** — evolution requirements
 - **PokéAPI** — species info, forms, and shiny artwork for mega/regional/Gigantamax forms
 - **Leek Duck's CDN** — most normal-form sprites
